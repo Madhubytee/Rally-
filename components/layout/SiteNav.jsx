@@ -3,8 +3,10 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
+import { useAuth } from '@/components/auth/AuthProvider'
 import { config } from '@/lib/config'
 
+import authStyles from '@/components/auth/auth.module.css'
 import styles from './layout.module.css'
 
 const LINKS = [
@@ -28,6 +30,7 @@ function RallyMark() {
 
 export default function SiteNav() {
   const pathname = usePathname()
+  const { user, hostName, loading, signOut } = useAuth()
 
   return (
     <nav className={styles.nav}>
@@ -50,12 +53,27 @@ export default function SiteNav() {
         </div>
 
         <div className={styles.navend}>
-          <button type="button" className="btn btn-ghost">
-            Log in
-          </button>
-          <button type="button" className="btn btn-dark">
-            Get the app
-          </button>
+          {/*
+            Nothing is rendered for the signed-out/signed-in split until the
+            session resolves. Flashing "Log in" at someone who is already
+            signed in reads as having been logged out.
+          */}
+          {!loading &&
+            (user ? (
+              <span className={authStyles.who}>
+                <span className={authStyles.whoName}>{hostName}</span>
+                <button type="button" className="btn btn-ghost" onClick={signOut}>
+                  Sign out
+                </button>
+              </span>
+            ) : (
+              <Link href="/signin" className="btn btn-ghost">
+                Log in
+              </Link>
+            ))}
+          <Link href="/app" className="btn btn-dark">
+            Open the map
+          </Link>
         </div>
       </div>
     </nav>

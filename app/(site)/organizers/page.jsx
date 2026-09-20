@@ -47,12 +47,31 @@ export default function OrganizersPage() {
           ))}
         </div>
 
+        <div className={styles.cta}>
+          <div>
+            <h2>Sign up to organize an event</h2>
+            <p>
+              Free, and it takes a minute. An account is only needed to publish — the people
+              who join what you organize never have to make one.
+            </p>
+          </div>
+
+          <div className={styles.ctaActions}>
+            <Link href="/signin" className="btn btn-accent btn-lg">
+              Sign up to organize
+            </Link>
+            <Link href="/app" className="btn btn-line btn-lg">
+              See the map first
+            </Link>
+          </div>
+        </div>
+
         <p className={styles.note}>
-          Organizer accounts are not built yet. The{' '}
+          Want the whole flow before committing? The{' '}
           <Link href="/" style={{ textDecoration: 'underline' }}>
             walkthrough on the home page
           </Link>{' '}
-          shows the full pin-to-published flow end to end.
+          runs pin to published end to end.
         </p>
       </div>
     </main>

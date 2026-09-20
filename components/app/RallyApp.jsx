@@ -1,11 +1,14 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
+import { useAuth } from '@/components/auth/AuthProvider'
 import { SEED_EVENTS, draftFromIssue, publishDraft } from '@/lib/board'
 import { config } from '@/lib/config'
+import { createEvent, createIssue, createSignup, fetchEvents, fetchIssues } from '@/lib/data'
 import { formatCoord } from '@/lib/geo'
 import { ISSUES, filterIssues } from '@/lib/issues'
+import { explain, suggestFor } from '@/lib/suggestions'
 import { useGeolocation } from '@/lib/useGeolocation'
 
 import BoardScreen from './BoardScreen'
@@ -21,25 +24,58 @@ import styles from './app.module.css'
 /**
  * The whole community app: three tabs over one shared set of records.
  *
- * State lives here rather than in a store because every screen reads the same
- * two lists and the flows all cross between them — publishing an event from
- * the map has to mark the pin and push a board row in the same tick. Nothing
- * persists; a reload is a fresh start. See `data/README.md` for what a real
- * backend would need to own.
+ * State lives here because every screen reads the same two lists and the
+ * flows cross between them — publishing has to mark the pin and push a board
+ * row in the same tick.
+ *
+ * Writes are optimistic. The list updates immediately and the database call
+ * follows, because a volunteer on a phone at the kerb should not watch a
+ * spinner to find out whether their report counted. When there is no database
+ * configured the app runs on bundled seed data and behaves identically,
+ * minus the persistence.
  */
 export default function RallyApp() {
+  const { user, hostName, configured } = useAuth()
+
   const [tab, setTab] = useState('map')
   const [filter, setFilter] = useState('All')
   const [issues, setIssues] = useState(ISSUES)
   const [events, setEvents] = useState(SEED_EVENTS)
+  const [live, setLive] = useState(false)
 
   const [selectedId, setSelectedId] = useState(null)
   const [sheet, setSheet] = useState(null)
   const [draft, setDraft] = useState(null)
   const [published, setPublished] = useState(null)
   const [signupId, setSignupId] = useState(null)
+  const [publishError, setPublishError] = useState('')
 
   const { position, error: locateError, locating, locate } = useGeolocation()
+
+  /*
+   * Seed data renders first and the database replaces it once it answers.
+   * An empty issues table is treated as "not populated yet" rather than
+   * "no problems in Gainesville", so the seed stays until there is something
+   * real to show. data/seed.mjs fills it.
+   */
+  useEffect(() => {
+    if (!configured) return
+
+    let active = true
+
+    Promise.all([fetchIssues(), fetchEvents()]).then(([rows, eventRows]) => {
+      if (!active) return
+      if (rows?.length) {
+        setIssues(rows)
+        setLive(true)
+      }
+      if (eventRows) setEvents(eventRows)
+    })
+
+    return () => {
+      active = false
+    }
+  }, [configured])
 
   const shown = useMemo(() => filterIssues(issues, filter), [issues, filter])
   const selected = issues.find((issue) => issue.id === selectedId) || null
@@ -47,6 +83,7 @@ export default function RallyApp() {
   const closeSheets = () => {
     setSheet(null)
     setSelectedId(null)
+    setPublishError('')
   }
 
   const openIssue = (id) => {
@@ -55,70 +92,86 @@ export default function RallyApp() {
   }
 
   const startDraft = () => {
-    setDraft(draftFromIssue(selected))
+    setDraft({ ...draftFromIssue(selected), host: hostName || 'A neighbor' })
     setSheet('draft')
   }
 
-  const publish = () => {
-    const event = publishDraft(draft)
+  const publish = async () => {
+    const optimistic = publishDraft(draft)
 
-    setEvents((prev) => [event, ...prev])
+    setEvents((prev) => [optimistic, ...prev])
     setIssues((prev) =>
       prev.map((issue) => (issue.id === draft.issueId ? { ...issue, done: true } : issue)),
     )
-    setPublished(event)
+    setPublished(optimistic)
     setSheet('published')
+
+    if (!live && !user) return
+
+    const saved = await createEvent(draft, { userId: user.id, hostName })
+
+    if (saved?.error) {
+      /* Roll the optimistic row back rather than leave a phantom event. */
+      setEvents((prev) => prev.filter((event) => event.id !== optimistic.id))
+      setIssues((prev) =>
+        prev.map((issue) => (issue.id === draft.issueId ? { ...issue, done: false } : issue)),
+      )
+      setPublishError(saved.error)
+      setSheet('draft')
+      return
+    }
+
+    if (saved) {
+      setEvents((prev) => prev.map((event) => (event.id === optimistic.id ? saved : event)))
+      setPublished(saved)
+    }
   }
 
-  /*
-   * Keyed by id, not by position. Publishing prepends to `events`, so an index
-   * captured when the sheet opened can point at a different event by the time
-   * the signup is confirmed.
-   */
   const joinEvent = (id) => {
     setSignupId(id)
     setSheet('signup')
   }
 
-  const confirmSignup = (party) => {
+  const confirmSignup = async (party, details) => {
     setEvents((prev) =>
       prev.map((event) =>
         event.id === signupId ? { ...event, going: event.going + party, signed: true } : event,
       ),
     )
+
+    if (live || user) await createSignup(signupId, { ...details, party })
   }
 
-  const addReport = ({ type, lat, lng, detail }) => {
-    const id = `u${Date.now()}`
+  const addReport = async ({ type, lat, lng, detail }) => {
+    const base = {
+      id: `u${Date.now()}`,
+      lat,
+      lng,
+      type,
+      waterSource: type === 'Standing water' ? 'Container' : 'Not applicable',
+      larvaeCount: null,
+      sev: 'med',
+      measuredAt: new Date().toISOString().slice(0, 10),
+      loc: formatCoord(lat, lng),
+      detail,
+      when: 'just now',
+      reports: 1,
+      src: 'Resident report',
+      ...suggestFor(type),
+    }
 
-    setIssues((prev) => [
-      ...prev,
-      {
-        id,
-        lat,
-        lng,
-        type,
-        waterSource: type === 'Standing water' ? 'Container' : 'Not applicable',
-        /*
-         * A fresh report has not been sampled, so the count stays null and the
-         * scoring rule lands it at medium — never zero, which would claim the
-         * reporter looked for larvae and found none.
-         */
-        larvaeCount: null,
-        sev: 'med',
-        loc: formatCoord(lat, lng),
-        detail,
-        when: 'just now',
-        reports: 1,
-        src: 'Resident report',
-        why: 'New report with no confirmation yet. One more neighbor flagging the same spot moves it up the list.',
-        event: `${type} cleanup`,
-        bring: 'Gloves, trash bags',
-      },
-    ])
+    const optimistic = { ...base, why: explain(base) }
 
+    setIssues((prev) => [...prev, optimistic])
     setFilter('All')
     setTab('map')
+
+    if (!live) return
+
+    const saved = await createIssue({ type, lat, lng, detail })
+    if (saved) {
+      setIssues((prev) => prev.map((issue) => (issue.id === optimistic.id ? saved : issue)))
+    }
   }
 
   const signupEvent = events.find((event) => event.id === signupId) || null
@@ -185,6 +238,7 @@ export default function RallyApp() {
       <IssueSheet
         open={sheet === 'issue'}
         issue={selected}
+        canOrganize={Boolean(user) || !configured}
         onClose={closeSheets}
         onOrganize={startDraft}
       />
@@ -192,6 +246,7 @@ export default function RallyApp() {
       <DraftSheet
         open={sheet === 'draft'}
         draft={draft}
+        error={publishError}
         onChange={setDraft}
         onClose={closeSheets}
         onPublish={publish}

@@ -1,5 +1,6 @@
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google'
 
+import AuthProvider from '@/components/auth/AuthProvider'
 import { config } from '@/lib/config'
 
 import './globals.css'
@@ -41,7 +42,9 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${body.variable} ${display.variable}`}>
-      <body>{children}</body>
+      <body>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   )
 }

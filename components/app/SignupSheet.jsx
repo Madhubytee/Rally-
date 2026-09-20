@@ -55,7 +55,7 @@ export default function SignupSheet({ open, event, onClose, onSubmit }) {
 
     const party = Math.min(50, Math.max(1, parseInt(form.party, 10) || 1))
     setError('')
-    onSubmit(party)
+    onSubmit(party, { name, email, phone: form.phone.trim(), org: form.org.trim() })
     setDone({ name, email, party })
   }
 

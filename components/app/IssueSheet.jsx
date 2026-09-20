@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+
 import { SEVERITY_LABEL } from '@/lib/severity'
 
 import Sheet from './Sheet'
@@ -18,7 +20,7 @@ const BADGE = {
  * zero, because the two mean different things and collapsing them here would
  * undo the care taken in the scoring rule.
  */
-export default function IssueSheet({ open, issue, onClose, onOrganize }) {
+export default function IssueSheet({ open, issue, canOrganize, onClose, onOrganize }) {
   return (
     <Sheet open={open} onClose={onClose} labelledBy="issue-sheet-title">
       {issue && (
@@ -60,10 +62,23 @@ export default function IssueSheet({ open, issue, onClose, onOrganize }) {
             <p className={styles.sheetLede}>
               An event is already scheduled here. It is on the board.
             </p>
-          ) : (
+          ) : canOrganize ? (
             <button type="button" className={styles.cta} onClick={onOrganize}>
               Organize an event here
             </button>
+          ) : (
+            /*
+             * Publishing is the one action that needs an account. Reporting
+             * and joining stay open, so this is the only gate in the app.
+             */
+            <>
+              <Link href="/signin?next=/app" className={styles.cta}>
+                Sign in to organize an event
+              </Link>
+              <p className={styles.gateNote}>
+                Only organizers need an account. Joining a cleanup never does.
+              </p>
+            </>
           )}
 
           <button type="button" className={`${styles.cta} ${styles.ctaGhost} ${styles.ctaSm}`} onClick={onClose}>

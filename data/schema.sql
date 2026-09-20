@@ -87,6 +87,11 @@ create table if not exists public.issues (
   constraint issues_larvae_sane check (larvae_count is null or larvae_count >= 0)
 );
 
+-- Added after the first cut. `create table if not exists` will not add a
+-- column to a table that already exists, so this runs separately and keeps
+-- the whole file safe to re-run.
+alter table public.issues add column if not exists loc text;
+
 create index if not exists issues_measured_at_idx on public.issues (measured_at desc);
 create index if not exists issues_latlng_idx on public.issues (lat, lng);
 

@@ -50,7 +50,9 @@ export default function CommunityBoard({ events, onInteract }) {
               disabled={event.fresh || hasJoined}
               onClick={() => join(event.id)}
             >
-              {event.fresh ? 'Live' : hasJoined ? "You're in" : "I'll be there"}
+              {/* Same three labels the app uses, so the walkthrough teaches
+                  the real interface rather than a variant of it. */}
+              {event.fresh ? 'Yours' : hasJoined ? 'Signed up' : 'Sign up'}
             </button>
           </div>
         )

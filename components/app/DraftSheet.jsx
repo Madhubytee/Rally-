@@ -10,7 +10,7 @@ import styles from './app.module.css'
  * dashed fields. The organizer supplies only what the report could not know:
  * when, and who is hosting.
  */
-export default function DraftSheet({ open, draft, onChange, onClose, onPublish }) {
+export default function DraftSheet({ open, draft, error, onChange, onClose, onPublish }) {
   const set = (key) => (event) => onChange({ ...draft, [key]: event.target.value })
 
   return (
@@ -60,6 +60,12 @@ export default function DraftSheet({ open, draft, onChange, onClose, onPublish }
             <label htmlFor="e-host">Hosted by</label>
             <input id="e-host" value={draft.host} onChange={set('host')} />
           </div>
+
+          {error && (
+            <p className={styles.error} role="alert">
+              {error}
+            </p>
+          )}
 
           <button type="button" className={styles.cta} onClick={onPublish}>
             Publish event

@@ -4,7 +4,7 @@ import { ISSUE_FILTERS } from '@/lib/issues'
 import { SEVERITY_RULE } from '@/lib/severity'
 import { summarize } from '@/lib/stats'
 
-import PlaceholderMap from './PlaceholderMap'
+import MapCanvas from './MapCanvas'
 import styles from './app.module.css'
 
 export default function MapScreen({
@@ -38,12 +38,7 @@ export default function MapScreen({
       </div>
 
       <div className={styles.map}>
-        <PlaceholderMap
-          issues={issues}
-          selectedId={selectedId}
-          onSelect={onSelect}
-          me={me}
-        />
+        <MapCanvas issues={issues} selectedId={selectedId} onSelect={onSelect} me={me} />
 
         <button
           type="button"
