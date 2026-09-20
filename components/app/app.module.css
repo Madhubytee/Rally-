@@ -456,13 +456,53 @@
 
 @media (min-width: 1024px) {
   /*
-   * The panel is the app's narrow column on desktop, so a sheet spanning the
-   * whole window would cover the map it is describing.
+   * On a desktop the sheet stops being a sheet.
+   *
+   * A card sliding up from the bottom edge is a phone gesture: it works
+   * because the thumb is at the bottom and the card is the only thing on
+   * screen. Here it covered the filters and the list, dimmed the map behind
+   * it, and left the detail floating with its own scrollbar.
+   *
+   * So it becomes what it actually is at this width — the panel column,
+   * showing the selected report in place of the list. It slides in from the
+   * side, the map stays live and undimmed beside it, and clicking another
+   * pin swaps the contents rather than stacking another layer.
    */
   .sheet {
+    top: 0;
+    bottom: 0;
     right: auto;
     width: 400px;
-    max-height: 92%;
+    max-height: none;
+    border-radius: 0;
+    border-right: 1px solid var(--a-line);
+    box-shadow: 6px 0 28px rgba(20, 22, 26, 0.09);
+    padding: 24px 22px 28px;
+    transform: translateX(-102%);
+    transition:
+      transform 0.24s cubic-bezier(0.32, 0.72, 0, 1),
+      visibility 0s linear 0.24s;
+  }
+
+  .sheetOn {
+    transform: translateX(0);
+    transition:
+      transform 0.24s cubic-bezier(0.32, 0.72, 0, 1),
+      visibility 0s;
+  }
+
+  /* A drag handle on something that does not drag. */
+  .grip {
+    display: none;
+  }
+
+  /*
+   * No dimming. The map is the other half of the answer — greying it out to
+   * show a detail about one of its pins is exactly backwards. Escape and the
+   * Close button still dismiss, and clicking another pin just switches.
+   */
+  .scrim {
+    display: none;
   }
 }
 
