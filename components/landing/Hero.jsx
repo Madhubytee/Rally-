@@ -9,7 +9,7 @@ export default function Hero() {
           water sites
         </div>
 
-        <h1 className={styles.title}>Everyone wants to help. Nobody knows where.</h1>
+        <h1 className={styles.title}>Nobody fixes a neighborhood alone.</h1>
         <p className={styles.sub}>Report a problem. Organize the cleanup. Bring the block.</p>
 
         <div className={styles.ctaRow}>

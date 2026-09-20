@@ -1,4 +1,4 @@
-import { BOARD } from '@/lib/board'
+import { SEED_EVENTS } from '@/lib/board'
 import { config } from '@/lib/config'
 
 import CommunityBoard from './CommunityBoard'
@@ -13,7 +13,7 @@ export default function BoardPanel() {
         Everything neighbors are organizing right now. Anyone can see it. Anyone can join.
       </p>
 
-      <CommunityBoard events={BOARD} />
+      <CommunityBoard events={SEED_EVENTS} />
 
       <div className={styles.callout}>
         The map opens with {config.seededSiteCount} standing water sites already on it, pulled

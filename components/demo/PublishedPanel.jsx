@@ -1,4 +1,4 @@
-import { BOARD, buildPublishedEvent } from '@/lib/board'
+import { SEED_EVENTS, buildPublishedEvent } from '@/lib/board'
 
 import CommunityBoard from './CommunityBoard'
 import EventFlyer from './EventFlyer'
@@ -6,7 +6,7 @@ import styles from './demo.module.css'
 
 /** Stage 3 — the flyer is generated and the event is on the public board. */
 export default function PublishedPanel({ issue, onReset }) {
-  const events = [buildPublishedEvent(issue), ...BOARD]
+  const events = [buildPublishedEvent(issue), ...SEED_EVENTS]
 
   return (
     <>

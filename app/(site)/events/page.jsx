@@ -1,5 +1,5 @@
 import CommunityBoard from '@/components/demo/CommunityBoard'
-import { BOARD } from '@/lib/board'
+import { SEED_EVENTS } from '@/lib/board'
 import { config } from '@/lib/config'
 
 import styles from '../routes.module.css'
@@ -21,7 +21,7 @@ export default function EventsPage() {
       </div>
 
       <div className={`wrap ${styles.section}`}>
-        <CommunityBoard events={BOARD} />
+        <CommunityBoard events={SEED_EVENTS} />
       </div>
     </main>
   )

@@ -1,7 +1,15 @@
 # dependencies
 node_modules/
+.pnp
+.pnp.js
+
+# next.js
+.next/
+out/
+next-env.d.ts
 
 # build output
+build/
 dist/
 
 # local env — never commit real values, .env.example is the committed template
@@ -9,8 +17,13 @@ dist/
 .env.local
 .env.*.local
 
+# deploy
+.vercel
+
 # logs
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 *.log
 
 # editor / OS
@@ -18,3 +31,4 @@ npm-debug.log*
 .idea/
 .DS_Store
 Thumbs.db
+*.pem

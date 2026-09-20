@@ -1,8 +1,5 @@
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google'
 
-import AnnouncementRibbon from '@/components/layout/AnnouncementRibbon'
-import SiteFooter from '@/components/layout/SiteFooter'
-import SiteNav from '@/components/layout/SiteNav'
 import { config } from '@/lib/config'
 
 import './globals.css'
@@ -25,7 +22,7 @@ const display = Plus_Jakarta_Sans({
 })
 
 export const metadata = {
-  title: `${config.appName} — Everyone wants to help. Nobody knows where.`,
+  title: `${config.appName} — Nobody fixes a neighborhood alone.`,
   description:
     'Rally is a community map where neighbors report local problems and anyone can turn a pin into a volunteer event with one click. Seeded with NASA GLOBE Observer standing water sites.',
 }
@@ -36,15 +33,15 @@ export const viewport = {
   viewportFit: 'cover',
 }
 
+/*
+ * Chrome belongs to the route groups, not here. (site) wraps the marketing
+ * pages in the nav and footer; (app) runs the phone-shaped community app,
+ * which supplies its own header and tab bar.
+ */
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${body.variable} ${display.variable}`}>
-      <body>
-        <AnnouncementRibbon />
-        <SiteNav />
-        {children}
-        <SiteFooter />
-      </body>
+      <body>{children}</body>
     </html>
   )
 }

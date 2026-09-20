@@ -1,15 +1,19 @@
 {
-  "name": "rally",
+  "name": "rally-website",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
-  "description": "A community map where neighbors report local problems and turn a pin into a volunteer event.",
+  "description": "Rally — a community map where neighbors report local problems and turn a pin into a volunteer event.",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
-  "devDependencies": {
-    "vite": "^7.1.5"
+  "dependencies": {
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.116.0",
+    "next": "^15.5.4",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
   }
 }
