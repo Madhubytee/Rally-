@@ -29,17 +29,55 @@
   color: var(--a-ink);
   font-size: 15px;
   line-height: 1.5;
-  display: flex;
-  flex-direction: column;
   height: 100dvh;
   position: relative;
   overflow: hidden;
+
+  /*
+   * Named areas rather than source order, so one DOM tree serves both
+   * layouts. On a phone the map is a band under the header; on a desktop it
+   * becomes a full-height column beside the panel, with no change to the
+   * markup and no JS measuring the viewport.
+   */
+  display: grid;
+  grid-template-areas:
+    'header'
+    'map'
+    'body'
+    'tabs';
+  grid-template-rows: auto auto 1fr auto;
+  grid-template-columns: 100%;
 }
 
-@media (min-width: 520px) {
+@media (min-width: 520px) and (max-width: 1023px) {
   .app {
     border-left: 1px solid var(--a-line);
     border-right: 1px solid var(--a-line);
+  }
+}
+
+/*
+ * Phone: the map is one of three tabs, so it is only mounted on its own tab.
+ * Desktop keeps it on screen permanently — it is the product, and hiding it
+ * to show a form would waste two thirds of the window.
+ */
+@media (max-width: 1023px) {
+  .app:not([data-tab='map']) .map {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app {
+    max-width: none;
+    grid-template-areas:
+      'header map'
+      'body   map'
+      'tabs   map';
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: 400px 1fr;
+    border-left: 0;
+    border-right: 0;
   }
 }
 
@@ -57,6 +95,7 @@
    -------------------------------------------------------------------------- */
 
 .top {
+  grid-area: header;
   padding: calc(env(safe-area-inset-top, 0px) + 14px) 20px 12px;
   border-bottom: 1px solid var(--a-line-2);
   flex: none;
@@ -96,7 +135,8 @@
    -------------------------------------------------------------------------- */
 
 .body {
-  flex: 1;
+  grid-area: body;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
@@ -184,11 +224,18 @@
    -------------------------------------------------------------------------- */
 
 .map {
+  grid-area: map;
   position: relative;
-  height: 460px;
-  margin-top: 12px;
+  height: 340px;
   background: #eef0f2;
   overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .map {
+    height: auto;
+    border-left: 1px solid var(--a-line);
+  }
 }
 
 .map svg {
@@ -405,6 +452,18 @@
   overflow-y: auto;
   padding: 10px 20px calc(env(safe-area-inset-bottom, 0px) + 20px);
   visibility: hidden;
+}
+
+@media (min-width: 1024px) {
+  /*
+   * The panel is the app's narrow column on desktop, so a sheet spanning the
+   * whole window would cover the map it is describing.
+   */
+  .sheet {
+    right: auto;
+    width: 400px;
+    max-height: 92%;
+  }
 }
 
 .sheetOn {
@@ -706,7 +765,7 @@
    -------------------------------------------------------------------------- */
 
 .tabs {
-  flex: none;
+  grid-area: tabs;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   border-top: 1px solid var(--a-line);
@@ -820,4 +879,68 @@
   font-size: 12.5px;
   color: var(--a-muted);
   text-align: center;
+}
+
+/* --------------------------------------------------------------------------
+   Report list
+   --------------------------------------------------------------------------
+   Pins answer "where". This answers "what, and in what order" — and it is
+   the only readable form of the set on a screen reader.
+   -------------------------------------------------------------------------- */
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--a-line-2);
+}
+
+.listRow {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  width: 100%;
+  text-align: left;
+  padding: 13px 20px;
+  border-bottom: 1px solid var(--a-line-2);
+}
+
+.listRow:hover {
+  background: var(--a-sunken);
+}
+
+.listRowOn {
+  background: var(--a-sunken);
+  box-shadow: inset 3px 0 0 var(--a-accent);
+}
+
+.listBadge {
+  flex: none;
+  margin-top: 1px;
+}
+
+.listBody {
+  min-width: 0;
+  display: block;
+}
+
+.listTitle {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.listLoc {
+  display: block;
+  font-size: 13px;
+  color: var(--a-ink-2);
+  margin-top: 1px;
+}
+
+.listMeta {
+  display: block;
+  font-size: 11.5px;
+  color: var(--a-muted);
+  margin-top: 3px;
 }

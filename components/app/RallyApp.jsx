@@ -14,6 +14,7 @@ import { useGeolocation } from '@/lib/useGeolocation'
 import BoardScreen from './BoardScreen'
 import DraftSheet from './DraftSheet'
 import IssueSheet from './IssueSheet'
+import MapCanvas from './MapCanvas'
 import MapScreen from './MapScreen'
 import PublishedSheet from './PublishedSheet'
 import ReportScreen from './ReportScreen'
@@ -178,7 +179,11 @@ export default function RallyApp() {
   const coords = position ? formatCoord(position.lat, position.lng) : ''
 
   return (
-    <div className={styles.app}>
+    /*
+     * data-tab drives the phone-width rule that mounts the map only on its
+     * own tab. On desktop the map is always up, so the attribute is ignored.
+     */
+    <div className={styles.app} data-tab={tab}>
       <header className={styles.top}>
         <div className={styles.topRow}>
           <span className={styles.logo}>
@@ -198,6 +203,28 @@ export default function RallyApp() {
         </div>
       </header>
 
+      <div className={styles.map}>
+        <MapCanvas issues={shown} selectedId={selectedId} onSelect={openIssue} me={position} />
+
+        <button
+          type="button"
+          className={styles.locateBtn}
+          onClick={locate}
+          disabled={locating}
+          aria-label={locating ? 'Finding your location' : 'Show my location'}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm8.94 3a9 9 0 0 0-7.94-7.94V1h-2v2.06A9 9 0 0 0 3.06 11H1v2h2.06A9 9 0 0 0 11 20.94V23h2v-2.06A9 9 0 0 0 20.94 13H23v-2h-2.06ZM12 19a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z" />
+          </svg>
+        </button>
+
+        {(locateError || !shown.length) && (
+          <div className={styles.hint}>
+            {locateError || 'No reports match this filter'}
+          </div>
+        )}
+      </div>
+
       <div className={styles.body}>
         {tab === 'map' && (
           <MapScreen
@@ -207,10 +234,6 @@ export default function RallyApp() {
             onFilter={setFilter}
             selectedId={selectedId}
             onSelect={openIssue}
-            me={position}
-            onLocate={locate}
-            locating={locating}
-            locateError={locateError}
           />
         )}
 

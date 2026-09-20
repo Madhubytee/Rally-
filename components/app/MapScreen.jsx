@@ -1,25 +1,38 @@
 'use client'
 
 import { ISSUE_FILTERS } from '@/lib/issues'
-import { SEVERITY_RULE } from '@/lib/severity'
+import { SEVERITY_RULE, SEVERITY_SHORT } from '@/lib/severity'
 import { summarize } from '@/lib/stats'
 
-import MapCanvas from './MapCanvas'
 import styles from './app.module.css'
 
-export default function MapScreen({
-  issues,
-  events,
-  filter,
-  onFilter,
-  selectedId,
-  onSelect,
-  me,
-  onLocate,
-  locating,
-  locateError,
-}) {
+const SEV_TAG = {
+  high: styles.badgeHigh,
+  med: styles.badgeMed,
+  low: styles.badgeLow,
+}
+
+/**
+ * The panel beside (or below) the map: filters, the four headline numbers,
+ * and the reports as a list.
+ *
+ * The map itself is not rendered here — it lives in the app shell so it can
+ * hold its own grid column on desktop and stay on screen while the panel
+ * switches tabs. This component owns everything that scrolls.
+ *
+ * The list is not redundant with the map. Pins show where; the list shows
+ * what, in priority order, and it is the only way to read the set on a
+ * screen reader or to compare two sites without clicking each one.
+ */
+export default function MapScreen({ issues, events, filter, onFilter, selectedId, onSelect }) {
   const stats = summarize(issues, events)
+
+  /* Worst and freshest first — the order someone would work through them. */
+  const ranked = [...issues].sort((a, b) => {
+    const weight = { high: 0, med: 1, low: 2 }
+    if (weight[a.sev] !== weight[b.sev]) return weight[a.sev] - weight[b.sev]
+    return (b.measuredAt || '').localeCompare(a.measuredAt || '')
+  })
 
   return (
     <section>
@@ -37,29 +50,6 @@ export default function MapScreen({
         ))}
       </div>
 
-      <div className={styles.map}>
-        <MapCanvas issues={issues} selectedId={selectedId} onSelect={onSelect} me={me} />
-
-        <button
-          type="button"
-          className={styles.locateBtn}
-          onClick={onLocate}
-          disabled={locating}
-          aria-label={locating ? 'Finding your location' : 'Show my location'}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm8.94 3a9 9 0 0 0-7.94-7.94V1h-2v2.06A9 9 0 0 0 3.06 11H1v2h2.06A9 9 0 0 0 11 20.94V23h2v-2.06A9 9 0 0 0 20.94 13H23v-2h-2.06ZM12 19a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z" />
-          </svg>
-        </button>
-
-        <div className={styles.hint}>
-          {locateError ||
-            (issues.length
-              ? 'Tap a pin to see the report'
-              : 'No reports match this filter')}
-        </div>
-      </div>
-
       <div className={styles.stats}>
         {stats.map((stat) => (
           <div key={stat.label} className={styles.stat}>
@@ -68,6 +58,35 @@ export default function MapScreen({
           </div>
         ))}
       </div>
+
+      <ul className={styles.list}>
+        {ranked.map((issue) => (
+          <li key={issue.id}>
+            <button
+              type="button"
+              className={`${styles.listRow} ${
+                selectedId === issue.id ? styles.listRowOn : ''
+              }`.trim()}
+              onClick={() => onSelect(issue.id)}
+            >
+              <span className={`${styles.badge} ${SEV_TAG[issue.sev]} ${styles.listBadge}`}>
+                {SEVERITY_SHORT[issue.sev]}
+              </span>
+
+              <span className={styles.listBody}>
+                <span className={styles.listTitle}>{issue.type}</span>
+                <span className={styles.listLoc}>{issue.loc}</span>
+                <span className={styles.listMeta}>
+                  {issue.src} · {issue.when}
+                  {issue.done ? ' · event scheduled' : ''}
+                </span>
+              </span>
+            </button>
+          </li>
+        ))}
+
+        {ranked.length === 0 && <li className={styles.empty}>No reports match this filter.</li>}
+      </ul>
 
       <div className={styles.pad}>
         <div className={styles.eyebrow}>How priority is set</div>

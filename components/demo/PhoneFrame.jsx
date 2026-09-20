@@ -23,10 +23,25 @@ const BADGE_CLASS = {
  * Pins carry real coordinates, so the mock projects them the same way the app
  * does. Computed once at module scope because the record set is static here —
  * this is an illustration, not the live map.
+ *
+ * The projection is then squeezed into the upper part of the frame. The detail
+ * bubble is anchored to the bottom of this same box, and at phone width it
+ * covers roughly the lower third — so a pin placed there is hidden behind the
+ * card describing it. Confining pins to the top 62% keeps every one of them
+ * visible while the bubble is open, which matters because the bubble only
+ * appears once a pin has been selected.
  */
-const PLACED = ISSUES.map((issue) => ({ issue, at: project(issue.lat, issue.lng) })).filter(
-  (p) => p.at,
-)
+const PIN_TOP = 6
+const PIN_BOTTOM = 62
+
+const PLACED = ISSUES.map((issue) => {
+  const at = project(issue.lat, issue.lng)
+  if (!at) return null
+  return {
+    issue,
+    at: { x: 8 + at.x * 0.84, y: PIN_TOP + (at.y / 100) * (PIN_BOTTOM - PIN_TOP) },
+  }
+}).filter(Boolean)
 
 function PinIcon() {
   return (
