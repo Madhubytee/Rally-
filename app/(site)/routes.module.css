@@ -15,84 +15,8 @@
   max-width: 64ch;
 }
 
-/* ---------- issue list ---------- */
-
-.issueList {
-  display: grid;
-  gap: 10px;
-}
-
-.issueRow {
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  padding: 16px 18px;
-  background: var(--surface);
-}
-
-.sevTag {
-  flex: none;
-  border-radius: 5px;
-  padding: 2px 8px;
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  margin-top: 2px;
-}
-
-.sevHigh {
-  background: var(--high-soft);
-  color: var(--high);
-}
-
-.sevMed {
-  background: var(--med-soft);
-  color: var(--med);
-}
-
-.issueBody {
-  flex: 1;
-  min-width: 0;
-}
-
-.issueBody h3 {
-  margin: 0 0 2px;
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
-.issueLoc {
-  margin: 0 0 6px;
-  font-size: 13px;
-  color: var(--muted);
-}
-
-.issueBody p {
-  margin: 0;
-  font-size: 14px;
-  color: var(--ink-2);
-}
-
-.issueMeta {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-top: 8px;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.srcTag {
-  display: inline-flex;
-  align-items: center;
-  background: var(--sunken);
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: 1px 8px;
-}
+/* The issue-list rules that used to live here moved to map/map.module.css
+   when /map became a filterable card grid. Nothing else referenced them. */
 
 /* ---------- info cards ---------- */
 
@@ -174,6 +98,33 @@
   margin: 0 0 14px;
 }
 
+/* Running prose between the card grids and the tables on the data page. */
+.bodyCopy {
+  margin: 0 0 16px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink-2);
+  max-width: 74ch;
+}
+
+.bodyCopy + .subhead {
+  margin-top: 34px;
+}
+
+.bodyCopy code,
+.note code {
+  font-size: 0.92em;
+  background: var(--sunken);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 1px 5px;
+}
+
+.note code {
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(118, 18, 250, 0.18);
+}
+
 @media (max-width: 1040px) {
   .cardGrid {
     grid-template-columns: 1fr;
@@ -184,6 +135,65 @@
   .specRow {
     grid-template-columns: 1fr;
     gap: 2px;
+  }
+}
+
+/* ---------- events board ---------- */
+
+/* The board rows read badly at 1240px, so the list keeps a comfortable
+   measure and the leftover width carries the explainer rail instead. */
+.boardLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 34px;
+  align-items: start;
+}
+
+.boardAside {
+  position: sticky;
+  top: calc(86px + env(safe-area-inset-top, 0px));
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--sunken);
+  padding: 20px;
+}
+
+.boardAside h2 {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-size: 17px;
+  margin: 0 0 10px;
+}
+
+.boardSteps {
+  margin: 0 0 16px;
+  padding-left: 18px;
+  font-size: 13.5px;
+  color: var(--ink-2);
+  line-height: 1.6;
+}
+
+.boardSteps li + li {
+  margin-top: 6px;
+}
+
+.boardAsideFoot {
+  margin: 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+@media (max-width: 960px) {
+  .boardLayout {
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+  .boardAside {
+    position: static;
   }
 }
 

@@ -1,0 +1,348 @@
+/* ==========================================================================
+   /map — the report directory.
+
+   Filters and the scoring legend sit in a fixed-width rail; the reports fill
+   whatever is left as a card grid. A single column stretched to 1240px was
+   the previous layout, and it put a 14-word location on a line wide enough
+   for 160.
+   ========================================================================== */
+
+.layout {
+  display: grid;
+  grid-template-columns: 272px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+/* ---------- filter rail ---------- */
+
+.sidebar {
+  position: sticky;
+  /* Clears the sticky site nav (66px tall) while the grid scrolls past. */
+  top: calc(86px + env(safe-area-inset-top, 0px));
+  display: grid;
+  gap: 22px;
+}
+
+.group {
+  display: grid;
+  gap: 9px;
+}
+
+.groupLabel {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  background: var(--surface);
+}
+
+.chip:hover {
+  border-color: var(--ink-2);
+  color: var(--ink);
+}
+
+.chipOn {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+  font-weight: 550;
+}
+
+.chipOn:hover {
+  color: var(--paper);
+}
+
+.chipCount {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.6;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+}
+
+/* ---------- severity legend ---------- */
+
+.legend {
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--sunken);
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.legendRow {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 13px;
+}
+
+.legendRow b {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.legendRow p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex: none;
+  margin-top: 5px;
+}
+
+.legendFoot {
+  margin: 0;
+  padding-top: 11px;
+  border-top: 1px solid var(--line);
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.inlineLink {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  color: var(--accent-ink);
+}
+
+/* Shared by the dots, the swatches and the card badges. Low is grey on
+   purpose: nobody has looked recently, which is not the same as safe. */
+.sevHigh {
+  background: var(--high);
+  color: var(--high);
+}
+
+.sevMed {
+  background: var(--med);
+  color: var(--med);
+}
+
+.sevLow {
+  background: var(--muted);
+  color: var(--muted);
+}
+
+/* ---------- results ---------- */
+
+.results {
+  min-width: 0;
+}
+
+.resultsHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.count {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.count b {
+  color: var(--ink);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.clear {
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.clear:hover {
+  color: var(--ink);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(288px, 1fr));
+  gap: 14px;
+}
+
+.card {
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-bottom: 9px;
+}
+
+.sevTag {
+  border-radius: 5px;
+  padding: 2px 8px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  /* The shared .sev* rules set a solid background for the dots; badges want
+     the tinted pair instead, so both properties are restated here. */
+  background: var(--sunken);
+}
+
+.sevTag.sevHigh {
+  background: var(--high-soft);
+}
+
+.sevTag.sevMed {
+  background: var(--med-soft);
+}
+
+.sevTag.sevLow {
+  background: var(--sunken);
+}
+
+.srcTag {
+  display: inline-flex;
+  align-items: center;
+  background: var(--sunken);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 1px 8px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.card h3 {
+  margin: 0 0 2px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.loc {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.detail {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink-2);
+  line-height: 1.55;
+}
+
+.meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.empty {
+  border: 1px dashed var(--line);
+  border-radius: var(--r-md);
+  padding: 28px 24px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 14.5px;
+  text-align: center;
+}
+
+/* ---------- live map call to action ---------- */
+
+.mapCta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  background: var(--sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 20px 24px;
+  margin-bottom: 26px;
+}
+
+.mapCtaText h2 {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  font-size: 19px;
+  margin: 0 0 4px;
+}
+
+.mapCtaText p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  max-width: 62ch;
+}
+
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+  .sidebar {
+    position: static;
+    grid-template-columns: 1fr 1fr;
+  }
+  .legend {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .sidebar {
+    grid-template-columns: 1fr;
+  }
+  .mapCta {
+    padding: 18px 18px;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

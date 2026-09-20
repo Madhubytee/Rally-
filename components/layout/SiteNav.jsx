@@ -10,7 +10,7 @@ import authStyles from '@/components/auth/auth.module.css'
 import styles from './layout.module.css'
 
 const LINKS = [
-  { href: '/map', label: 'Map' },
+  { href: '/map', label: 'Reports' },
   { href: '/events', label: 'Events' },
   { href: '/organizers', label: 'Organizers' },
   { href: '/data', label: 'Data' },
