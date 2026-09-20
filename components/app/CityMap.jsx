@@ -32,7 +32,7 @@ const MAX_BOUNDS = [
   COUNTY_BOUNDS.maxLat,
 ]
 
-export default function CityMap({ issues, selectedId, onSelect, me, onError }) {
+export default function CityMap({ issues, selectedId, onSelect, me, focus, onError }) {
   const mapRef = useRef(null)
 
   /* Follow the device once a fix arrives, but never yank the view otherwise. */
@@ -40,6 +40,17 @@ export default function CityMap({ issues, selectedId, onSelect, me, onError }) {
     if (!me) return
     mapRef.current?.flyTo({ center: [me.lng, me.lat], zoom: 14, duration: 900 })
   }, [me])
+
+  /*
+   * Fly to a point the app explicitly asks for. Used after someone files a
+   * report: the pin is added to a map already holding eighteen others, and
+   * without this they are left hunting for their own contribution with no
+   * idea whether it registered.
+   */
+  useEffect(() => {
+    if (!focus) return
+    mapRef.current?.flyTo({ center: [focus.lng, focus.lat], zoom: 15, duration: 1100 })
+  }, [focus])
 
   /* Centre the selected pin if it is off screen — tapping the list should
      not leave the map showing somewhere else entirely. */

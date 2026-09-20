@@ -51,6 +51,10 @@ export default function RallyApp() {
   const [signupId, setSignupId] = useState(null)
   const [publishError, setPublishError] = useState('')
 
+  /* Where the map should fly next, and what to say when it lands. */
+  const [focus, setFocus] = useState(null)
+  const [justReported, setJustReported] = useState(false)
+
   const { position, error: locateError, locating, locate } = useGeolocation()
 
   /*
@@ -90,6 +94,7 @@ export default function RallyApp() {
   const openIssue = (id) => {
     setSelectedId(id)
     setSheet('issue')
+    setJustReported(false)
   }
 
   const startDraft = () => {
@@ -167,6 +172,18 @@ export default function RallyApp() {
     setFilter('All')
     setTab('map')
 
+    /*
+     * Land the map on the new pin and mark it selected.
+     *
+     * Dropping someone back onto a map of nineteen identical dots and
+     * expecting them to find their own is how a report that worked still
+     * feels like it failed. A new object each time so the effect re-runs
+     * even when two reports share coordinates.
+     */
+    setFocus({ lat, lng })
+    setSelectedId(optimistic.id)
+    setJustReported(true)
+
     if (!live) return
 
     const saved = await createIssue({ type, lat, lng, detail })
@@ -204,7 +221,13 @@ export default function RallyApp() {
       </header>
 
       <div className={styles.map}>
-        <MapCanvas issues={shown} selectedId={selectedId} onSelect={openIssue} me={position} />
+        <MapCanvas
+          issues={shown}
+          selectedId={selectedId}
+          onSelect={openIssue}
+          me={position}
+          focus={focus}
+        />
 
         <button
           type="button"
@@ -218,9 +241,11 @@ export default function RallyApp() {
           </svg>
         </button>
 
-        {(locateError || !shown.length) && (
-          <div className={styles.hint}>
-            {locateError || 'No reports match this filter'}
+        {(justReported || locateError || !shown.length) && (
+          <div className={`${styles.hint} ${justReported ? styles.hintGood : ''}`.trim()}>
+            {justReported
+              ? 'Your report is on the map — tap the highlighted pin to see it.'
+              : locateError || 'No reports match this filter'}
           </div>
         )}
       </div>

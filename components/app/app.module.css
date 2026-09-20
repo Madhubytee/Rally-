@@ -984,3 +984,11 @@
   color: var(--a-muted);
   margin-top: 3px;
 }
+
+/* Confirmation that a just-filed report landed, rather than a neutral hint. */
+.hintGood {
+  border-color: var(--a-accent);
+  color: var(--a-accent-ink, #5a0fc0);
+  background: rgba(255, 255, 255, 0.97);
+  font-weight: 550;
+}

@@ -25,7 +25,7 @@ const CityMap = dynamic(() => import('./CityMap'), {
  * pins carry real coordinates either way, so nothing is lost but the
  * streets.
  */
-export default function MapCanvas({ issues, selectedId, onSelect, me }) {
+export default function MapCanvas({ issues, selectedId, onSelect, me, focus }) {
   const [failed, setFailed] = useState(false)
 
   if (failed) {
@@ -45,6 +45,7 @@ export default function MapCanvas({ issues, selectedId, onSelect, me }) {
       selectedId={selectedId}
       onSelect={onSelect}
       me={me}
+      focus={focus}
       onError={() => setFailed(true)}
     />
   )
