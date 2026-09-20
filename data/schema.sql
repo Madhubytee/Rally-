@@ -37,6 +37,11 @@ create policy "organizers manage their own profile"
   with check (auth.uid() = id);
 
 -- Give every new auth user a profile so events always have a host name.
+--
+-- The name is taken from whatever the sign-up route actually provides.
+-- Email sign-up asks for an organization directly. Google supplies
+-- `full_name` or `name` and never `host_name`, so without these fallbacks
+-- every Google organizer would publish events as "A neighbor".
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -44,11 +49,28 @@ security definer set search_path = public
 as $$
 begin
   insert into public.profiles (id, host_name)
-  values (new.id, coalesce(new.raw_user_meta_data ->> 'host_name', 'A neighbor'))
+  values (
+    new.id,
+    -- The outer coalesce is load-bearing: host_name is NOT NULL, and a
+    -- column default only applies when the column is omitted, not when NULL
+    -- is passed explicitly. Without it a user with no name anywhere would
+    -- fail the insert, the trigger would raise, and the whole sign-up would
+    -- be rejected.
+    coalesce(
+      nullif(trim(coalesce(
+        new.raw_user_meta_data ->> 'host_name',
+        new.raw_user_meta_data ->> 'full_name',
+        new.raw_user_meta_data ->> 'name',
+        split_part(coalesce(new.email, ''), '@', 1)
+      )), ''),
+      'A neighbor'
+    )
+  )
   on conflict (id) do nothing;
   return new;
 end;
 $$;
+
 
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
