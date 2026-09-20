@@ -1,0 +1,108 @@
+/* ---------- announcement ribbon ---------- */
+
+.ribbon {
+  border-bottom: 1px solid var(--line);
+  background: var(--sunken);
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+
+.ribbonInner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  text-align: center;
+  flex-wrap: wrap;
+}
+
+.ribbon b {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.dotLive {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--high);
+  flex: none;
+}
+
+/* ---------- nav ---------- */
+
+.nav {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 40;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+
+.navInner {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  min-height: 66px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+}
+
+.brand svg {
+  flex: none;
+}
+
+.navlinks {
+  display: flex;
+  gap: 26px;
+  font-size: 14.5px;
+  color: var(--ink-2);
+  font-weight: 450;
+}
+
+.navlinks a:hover {
+  color: var(--ink);
+}
+
+.navlinkActive {
+  color: var(--ink);
+  font-weight: 550;
+}
+
+.navend {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ---------- footer ---------- */
+
+.footer {
+  border-top: 1px solid var(--line);
+  padding: 38px 0;
+  font-size: 13.5px;
+  color: var(--muted);
+}
+
+.footerInner {
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1040px) {
+  .navlinks {
+    display: none;
+  }
+}
