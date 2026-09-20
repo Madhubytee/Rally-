@@ -1,11 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import Sheet from './Sheet'
 import styles from './app.module.css'
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+const EMPTY = { name: '', email: '', phone: '', party: '1', org: '' }
 
 /**
  * Joining an event. No account, by design — asking someone to register before
@@ -15,24 +17,28 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
  * time moves or it rains. Everything else is optional.
  */
 export default function SignupSheet({ open, event, onClose, onSubmit }) {
-  const [form, setForm] = useState({ name: '', email: '', phone: '', party: '1', org: '' })
+  const [form, setForm] = useState(EMPTY)
   const [error, setError] = useState('')
   const [done, setDone] = useState(null)
 
+  /*
+   * Reset on open rather than on close. There is more than one way out of a
+   * sheet — the Cancel button, Escape, and the scrim, which closes from the
+   * parent and never runs anything in here. Resetting on the way in is the
+   * only place guaranteed to run for all of them; clearing on the way out
+   * missed the scrim, so the next event opened straight onto the previous
+   * event's confirmation and told people they had signed up when they had not.
+   */
+  useEffect(() => {
+    if (!open) return
+    setForm(EMPTY)
+    setError('')
+    setDone(null)
+  }, [open])
+
   const set = (key) => (e) => setForm((prev) => ({ ...prev, [key]: e.target.value }))
 
-  const close = () => {
-    onClose()
-    /*
-     * Reset after the close transition, not during it — clearing immediately
-     * makes the confirmation flicker back to an empty form on the way out.
-     */
-    setTimeout(() => {
-      setDone(null)
-      setError('')
-      setForm({ name: '', email: '', phone: '', party: '1', org: '' })
-    }, 250)
-  }
+  const close = () => onClose()
 
   const submit = () => {
     const name = form.name.trim()

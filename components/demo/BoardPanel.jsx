@@ -5,7 +5,7 @@ import CommunityBoard from './CommunityBoard'
 import styles from './demo.module.css'
 
 /** Stage 0 — the resting state: what is already being organized nearby. */
-export default function BoardPanel() {
+export default function BoardPanel({ onInteract }) {
   return (
     <>
       <h3 className={styles.panelTitle}>{config.defaultCity} community board</h3>
@@ -13,7 +13,7 @@ export default function BoardPanel() {
         Everything neighbors are organizing right now. Anyone can see it. Anyone can join.
       </p>
 
-      <CommunityBoard events={SEED_EVENTS} />
+      <CommunityBoard events={SEED_EVENTS} onInteract={onInteract} />
 
       <div className={styles.callout}>
         The map opens with {config.seededSiteCount} standing water sites already on it, pulled

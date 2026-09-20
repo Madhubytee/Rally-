@@ -5,7 +5,7 @@ import EventFlyer from './EventFlyer'
 import styles from './demo.module.css'
 
 /** Stage 3 — the flyer is generated and the event is on the public board. */
-export default function PublishedPanel({ issue, onReset }) {
+export default function PublishedPanel({ issue, onReset, onInteract }) {
   const events = [buildPublishedEvent(issue), ...SEED_EVENTS]
 
   return (
@@ -21,7 +21,7 @@ export default function PublishedPanel({ issue, onReset }) {
 
         <div>
           <div className={styles.resultLabel}>Community board, updated</div>
-          <CommunityBoard events={events} />
+          <CommunityBoard events={events} onInteract={onInteract} />
 
           <div className={styles.rowActions} style={{ marginTop: 18 }}>
             <button type="button" className="btn btn-line btn-lg" onClick={onReset}>

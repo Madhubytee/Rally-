@@ -249,6 +249,12 @@
   background: var(--med);
 }
 
+/* Stale sites. Grey rather than a warm colour: the point is that nobody has
+   looked recently, not that it is safe. */
+.sevLow {
+  background: var(--muted);
+}
+
 .sevEvent {
   background: var(--accent);
   border-radius: 50%;
@@ -328,6 +334,11 @@
 .badgeMed {
   background: var(--med-soft);
   color: var(--med);
+}
+
+.badgeLow {
+  background: var(--sunken);
+  color: var(--muted);
 }
 
 .badgeEv {

@@ -1,9 +1,32 @@
-import { config } from '@/lib/config'
-import { ISSUES, ISSUE_FILTERS, openIssueCount } from '@/lib/issues'
 import { DRAFT_DEFAULTS } from '@/lib/board'
+import { config } from '@/lib/config'
+import { project } from '@/lib/geo'
+import { ISSUES, ISSUE_FILTERS, openIssueCount } from '@/lib/issues'
+import { SEVERITY_LABEL } from '@/lib/severity'
 
 import CityMapSvg from './CityMapSvg'
 import styles from './demo.module.css'
+
+const SEV_CLASS = {
+  high: styles.sevHigh,
+  med: styles.sevMed,
+  low: styles.sevLow,
+}
+
+const BADGE_CLASS = {
+  high: styles.badgeHigh,
+  med: styles.badgeMed,
+  low: styles.badgeLow,
+}
+
+/*
+ * Pins carry real coordinates, so the mock projects them the same way the app
+ * does. Computed once at module scope because the record set is static here —
+ * this is an illustration, not the live map.
+ */
+const PLACED = ISSUES.map((issue) => ({ issue, at: project(issue.lat, issue.lng) })).filter(
+  (p) => p.at,
+)
 
 function PinIcon() {
   return (
@@ -56,14 +79,10 @@ export default function PhoneFrame({ current, stage, onSelectIssue }) {
             <CityMapSvg />
 
             <div>
-              {ISSUES.map((issue, idx) => {
+              {PLACED.map(({ issue, at }, idx) => {
                 const isSelected = current?.id === issue.id
                 const isEventPin = published && isSelected
-                const severity = isEventPin
-                  ? styles.sevEvent
-                  : issue.sev === 'high'
-                    ? styles.sevHigh
-                    : styles.sevMed
+                const severity = isEventPin ? styles.sevEvent : SEV_CLASS[issue.sev]
 
                 const classes = [styles.pin, severity]
                 if (isSelected) classes.push(styles.sel)
@@ -74,7 +93,7 @@ export default function PhoneFrame({ current, stage, onSelectIssue }) {
                     type="button"
                     key={issue.id}
                     className={classes.join(' ')}
-                    style={{ left: `${issue.x}%`, top: `${issue.y}%` }}
+                    style={{ left: `${at.x}%`, top: `${at.y}%`, zIndex: isSelected ? 3 : 2 }}
                     aria-label={`${issue.type} at ${issue.loc}`}
                     onClick={() => onSelectIssue(issue.id)}
                   />
@@ -91,18 +110,10 @@ export default function PhoneFrame({ current, stage, onSelectIssue }) {
                   <div className={styles.bTop}>
                     <span
                       className={`${styles.badge} ${
-                        published
-                          ? styles.badgeEv
-                          : current.sev === 'high'
-                            ? styles.badgeHigh
-                            : styles.badgeMed
+                        published ? styles.badgeEv : BADGE_CLASS[current.sev]
                       }`}
                     >
-                      {published
-                        ? 'Event scheduled'
-                        : current.sev === 'high'
-                          ? 'High priority'
-                          : 'Medium'}
+                      {published ? 'Event scheduled' : SEVERITY_LABEL[current.sev]}
                     </span>
                   </div>
                   <h4>{published ? current.event : current.type}</h4>

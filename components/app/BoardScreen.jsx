@@ -13,7 +13,7 @@ export default function BoardScreen({ events, onJoin }) {
       {events.length === 0 ? (
         <p className={styles.empty}>Nothing scheduled yet. Turn a pin into the first one.</p>
       ) : (
-        events.map((event, index) => {
+        events.map((event) => {
           const done = event.signed || event.fresh
           const label = event.signed ? 'Signed up' : event.fresh ? 'Yours' : 'Sign up'
 
@@ -35,7 +35,7 @@ export default function BoardScreen({ events, onJoin }) {
                 type="button"
                 className={`${styles.join} ${done ? styles.joinIn : ''}`.trim()}
                 disabled={done}
-                onClick={() => onJoin(index)}
+                onClick={() => onJoin(event.id)}
               >
                 {label}
               </button>

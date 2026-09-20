@@ -44,12 +44,9 @@ export default function LoopDemo() {
    * anyone who has asked for reduced motion never has it switched on at all.
    */
   const [ready, setReady] = useState(false)
-  const reducedMotion = useRef(false)
 
   useEffect(() => {
-    const query = window.matchMedia('(prefers-reduced-motion: reduce)')
-    reducedMotion.current = query.matches
-    setReady(!query.matches)
+    setReady(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   }, [])
 
   const selectIssue = useCallback((id) => {
@@ -82,23 +79,22 @@ export default function LoopDemo() {
   useEffect(() => {
     if (!ready || !playing || paused) return undefined
 
+    /*
+     * Computed from the current stage rather than inside a setState updater.
+     * Updaters must be pure — React re-invokes them, and a setCurrent in
+     * there fires twice per tick under StrictMode.
+     */
     const timer = setTimeout(() => {
-      setStage((prev) => {
-        if (prev === 0) {
-          setCurrent(DEFAULT_ISSUE)
-          return 1
-        }
-        if (prev < 3) return prev + 1
-        setCurrent(null)
-        return 0
-      })
+      const next = stage >= 3 ? 0 : stage + 1
+      setCurrent(next === 0 ? null : DEFAULT_ISSUE)
+      setStage(next)
     }, STAGE_MS[stage])
 
     return () => clearTimeout(timer)
   }, [ready, playing, paused, stage])
 
   const panels = [
-    <BoardPanel key="board" />,
+    <BoardPanel key="board" onInteract={takeOver} />,
     current && (
       <IssuePanel
         issue={current}
@@ -128,6 +124,7 @@ export default function LoopDemo() {
     current && (
       <PublishedPanel
         issue={current}
+        onInteract={takeOver}
         onReset={() => {
           takeOver()
           reset()

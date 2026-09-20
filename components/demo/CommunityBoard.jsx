@@ -7,16 +7,18 @@ import styles from './demo.module.css'
 /**
  * The public board. A freshly published event renders as "Live" and is not
  * joinable by its own organizer; everything else can be joined once.
+ *
+ * `onInteract` lets the caller know a real person clicked something. The
+ * landing walkthrough uses it to stop autoplaying — without it, joining an
+ * event here would be overwritten by the timer a few seconds later.
  */
-export default function CommunityBoard({ events }) {
+export default function CommunityBoard({ events, onInteract }) {
   const [joined, setJoined] = useState(() => new Set())
 
-  const join = (id) =>
-    setJoined((prev) => {
-      const next = new Set(prev)
-      next.add(id)
-      return next
-    })
+  const join = (id) => {
+    onInteract?.()
+    setJoined((prev) => new Set(prev).add(id))
+  }
 
   return (
     <div>
@@ -34,8 +36,10 @@ export default function CommunityBoard({ events }) {
             </div>
 
             <div className={styles.bcBody}>
-              <h5>{event.t}</h5>
-              <p>{event.s}</p>
+              <h5>{event.title}</h5>
+              <p>
+                {event.when} · {event.going} going · Hosted by {event.host}
+              </p>
             </div>
 
             <button

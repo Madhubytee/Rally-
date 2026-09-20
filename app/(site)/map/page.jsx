@@ -1,7 +1,14 @@
 import { config } from '@/lib/config'
 import { ISSUES } from '@/lib/issues'
+import { SEVERITY_SHORT } from '@/lib/severity'
 
 import styles from '../routes.module.css'
+
+const SEV_TAG = {
+  high: styles.sevHigh,
+  med: styles.sevMed,
+  low: styles.sevLow,
+}
 
 export const metadata = {
   title: 'Map — Rally',
@@ -28,12 +35,8 @@ export default function MapPage() {
         <div className={styles.issueList}>
           {ISSUES.map((issue) => (
             <article key={issue.id} className={styles.issueRow}>
-              <span
-                className={`${styles.sevTag} ${
-                  issue.sev === 'high' ? styles.sevHigh : styles.sevMed
-                }`}
-              >
-                {issue.sev === 'high' ? 'High' : 'Medium'}
+              <span className={`${styles.sevTag} ${SEV_TAG[issue.sev]}`}>
+                {SEVERITY_SHORT[issue.sev]}
               </span>
 
               <div className={styles.issueBody}>

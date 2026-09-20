@@ -37,7 +37,7 @@ export default function RallyApp() {
   const [sheet, setSheet] = useState(null)
   const [draft, setDraft] = useState(null)
   const [published, setPublished] = useState(null)
-  const [signupIndex, setSignupIndex] = useState(null)
+  const [signupId, setSignupId] = useState(null)
 
   const { position, error: locateError, locating, locate } = useGeolocation()
 
@@ -71,18 +71,19 @@ export default function RallyApp() {
   }
 
   /*
-   * The board renders the filtered-down-to-nothing case too, so signups key
-   * off the index in the live array rather than a snapshot taken at open.
+   * Keyed by id, not by position. Publishing prepends to `events`, so an index
+   * captured when the sheet opened can point at a different event by the time
+   * the signup is confirmed.
    */
-  const joinEvent = (index) => {
-    setSignupIndex(index)
+  const joinEvent = (id) => {
+    setSignupId(id)
     setSheet('signup')
   }
 
   const confirmSignup = (party) => {
     setEvents((prev) =>
-      prev.map((event, index) =>
-        index === signupIndex ? { ...event, going: event.going + party, signed: true } : event,
+      prev.map((event) =>
+        event.id === signupId ? { ...event, going: event.going + party, signed: true } : event,
       ),
     )
   }
@@ -120,7 +121,7 @@ export default function RallyApp() {
     setTab('map')
   }
 
-  const signupEvent = signupIndex == null ? null : events[signupIndex]
+  const signupEvent = events.find((event) => event.id === signupId) || null
   const coords = position ? formatCoord(position.lat, position.lng) : ''
 
   return (
@@ -137,7 +138,7 @@ export default function RallyApp() {
             </svg>
             {config.appName}
           </span>
-          <span className={styles.count}>{shown.length} open</span>
+          <span className={styles.count}>{shown.filter((i) => !i.done).length} open</span>
         </div>
         <div className={styles.where}>
           {config.defaultCity} · {position ? 'near you' : 'city wide'}
